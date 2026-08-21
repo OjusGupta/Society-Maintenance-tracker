@@ -58,7 +58,7 @@ export default function NewComplaintPage() {
         body: JSON.stringify({
           category,
           description,
-          photoBase64: photoPreview,
+          ...(photoPreview ? { photoBase64: photoPreview } : {}),
         }),
       });
 

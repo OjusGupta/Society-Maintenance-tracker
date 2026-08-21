@@ -81,6 +81,26 @@ export default function ComplaintDetailPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this complaint?")) return;
+    setActionLoading(true);
+    try {
+      const res = await fetch(`/api/complaints/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        router.push(backLink);
+      } else {
+        alert("Failed to delete complaint");
+      }
+    } catch (err) {
+      alert("Failed to delete complaint");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (isLoading || loading) return <div className="spinner" />;
   if (!complaint) return <div className="container page-wrapper">Complaint not found</div>;
 
@@ -89,15 +109,20 @@ export default function ComplaintDetailPage() {
 
   return (
     <div className="container page-wrapper">
-      <div className="page-header">
-        <Link href={backLink} className="btn btn-ghost mb-md" style={{ paddingLeft: 0 }}>
-          ← Back
-        </Link>
-        <div className="flex items-center gap-md flex-wrap mb-sm">
-          <h1>Complaint Details</h1>
-          {complaint.isOverdue && <span className="badge badge-overdue">Overdue</span>}
+      <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <Link href={backLink} className="btn btn-ghost mb-md" style={{ paddingLeft: 0 }}>
+            ← Back
+          </Link>
+          <div className="flex items-center gap-md flex-wrap mb-sm">
+            <h1>Complaint Details</h1>
+            {complaint.isOverdue && <span className="badge badge-overdue">Overdue</span>}
+          </div>
+          <p className="page-subtitle">ID: {complaint.id}</p>
         </div>
-        <p className="page-subtitle">ID: {complaint.id}</p>
+        <button className="btn btn-danger" onClick={handleDelete} disabled={actionLoading} style={{ marginTop: "1rem" }}>
+          Delete Request
+        </button>
       </div>
 
       <div className="detail-grid">

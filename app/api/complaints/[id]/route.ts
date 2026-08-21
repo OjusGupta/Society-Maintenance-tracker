@@ -37,3 +37,33 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   return NextResponse.json({ ...complaint, isOverdue });
 }
+
+// ─── DELETE /api/complaints/[id] ──────────────────────────────────────────────
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const auth = requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
+  const { user } = auth;
+
+  const { id } = await params;
+
+  const complaint = await prisma.complaint.findUnique({
+    where: { id },
+  });
+
+  if (!complaint) {
+    return NextResponse.json({ error: "Complaint not found" }, { status: 404 });
+  }
+
+  // Residents can only delete their own complaints
+  if (user.role === "RESIDENT" && complaint.residentId !== user.userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // Delete complaint (status history will be deleted if onCascade is set, else we need to delete it first)
+  await prisma.$transaction(async (tx) => {
+    await tx.complaintStatusHistory.deleteMany({ where: { complaintId: id } });
+    await tx.complaint.delete({ where: { id } });
+  });
+
+  return NextResponse.json({ success: true });
+}
