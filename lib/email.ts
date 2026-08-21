@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { prisma } from "./prisma";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || "missing_key");
 const FROM = "Society Tracker <onboarding@resend.dev>";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
