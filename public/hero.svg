@@ -1,0 +1,90 @@
+<svg width="680" height="480" viewBox="0 0 680 480" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Illustration of an apartment building with a maintenance dashboard</title>
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#EEF2FF"/>
+<stop offset="100%" stop-color="#E0E7FF"/>
+</linearGradient>
+</defs>
+<rect x="0" y="0" width="680" height="480" rx="16" fill="url(#sky)"/>
+<circle cx="590" cy="80" r="46" fill="#FDE68A" opacity="0.6"/>
+
+<!-- ground -->
+<rect x="0" y="410" width="680" height="70" fill="#C7D2FE" opacity="0.5"/>
+
+<!-- background small building -->
+<rect x="40" y="230" width="120" height="180" rx="6" fill="#A5B4FC"/>
+<g fill="#EEF2FF">
+<rect x="56" y="250" width="20" height="20" rx="2"/>
+<rect x="90" y="250" width="20" height="20" rx="2"/>
+<rect x="124" y="250" width="20" height="20" rx="2"/>
+<rect x="56" y="284" width="20" height="20" rx="2"/>
+<rect x="90" y="284" width="20" height="20" rx="2"/>
+<rect x="124" y="284" width="20" height="20" rx="2"/>
+<rect x="56" y="318" width="20" height="20" rx="2"/>
+<rect x="90" y="318" width="20" height="20" rx="2"/>
+<rect x="124" y="318" width="20" height="20" rx="2"/>
+</g>
+
+<!-- main apartment tower -->
+<rect x="190" y="120" width="220" height="290" rx="8" fill="#4F46E5"/>
+<g fill="#EEF2FF" opacity="0.95">
+<rect x="212" y="148" width="34" height="34" rx="3"/>
+<rect x="258" y="148" width="34" height="34" rx="3"/>
+<rect x="304" y="148" width="34" height="34" rx="3"/>
+<rect x="350" y="148" width="34" height="34" rx="3"/>
+<rect x="212" y="196" width="34" height="34" rx="3"/>
+<rect x="258" y="196" width="34" height="34" rx="3"/>
+<rect x="304" y="196" width="34" height="34" rx="3"/>
+<rect x="350" y="196" width="34" height="34" rx="3"/>
+<rect x="212" y="244" width="34" height="34" rx="3"/>
+<rect x="258" y="244" width="34" height="34" rx="3"/>
+<rect x="304" y="244" width="34" height="34" rx="3"/>
+<rect x="350" y="244" width="34" height="34" rx="3"/>
+<rect x="212" y="292" width="34" height="34" rx="3"/>
+<rect x="258" y="292" width="34" height="34" rx="3"/>
+<rect x="304" y="292" width="34" height="34" rx="3"/>
+<rect x="350" y="292" width="34" height="34" rx="3"/>
+</g>
+<rect x="270" y="352" width="60" height="58" rx="4" fill="#1E1B4B"/>
+<circle cx="316" cy="381" r="2.5" fill="#FDE68A"/>
+
+<!-- second small building -->
+<rect x="470" y="200" width="140" height="210" rx="6" fill="#818CF8"/>
+<g fill="#EEF2FF">
+<rect x="490" y="222" width="24" height="24" rx="2"/>
+<rect x="530" y="222" width="24" height="24" rx="2"/>
+<rect x="570" y="222" width="24" height="24" rx="2"/>
+<rect x="490" y="262" width="24" height="24" rx="2"/>
+<rect x="530" y="262" width="24" height="24" rx="2"/>
+<rect x="570" y="262" width="24" height="24" rx="2"/>
+<rect x="490" y="302" width="24" height="24" rx="2"/>
+<rect x="530" y="302" width="24" height="24" rx="2"/>
+<rect x="570" y="302" width="24" height="24" rx="2"/>
+<rect x="490" y="342" width="24" height="24" rx="2"/>
+<rect x="530" y="342" width="24" height="24" rx="2"/>
+<rect x="570" y="342" width="24" height="24" rx="2"/>
+</g>
+
+<!-- floating dashboard card -->
+<g>
+<rect x="90" y="60" width="220" height="130" rx="12" fill="#FFFFFF" stroke="#C7D2FE" stroke-width="1.5"/>
+<rect x="112" y="82" width="90" height="10" rx="3" fill="#4F46E5"/>
+<rect x="112" y="102" width="140" height="8" rx="3" fill="#C7D2FE"/>
+<rect x="112" y="118" width="100" height="8" rx="3" fill="#C7D2FE"/>
+<rect x="112" y="140" width="50" height="34" rx="6" fill="#DCFCE7"/>
+<text x="137" y="161" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" fill="#15803D" text-anchor="middle">Open</text>
+<rect x="172" y="140" width="50" height="34" rx="6" fill="#FEF9C3"/>
+<text x="197" y="161" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#A16207" text-anchor="middle">In Prog.</text>
+<rect x="232" y="140" width="58" height="34" rx="6" fill="#DBEAFE"/>
+<text x="261" y="161" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#1D4ED8" text-anchor="middle">Resolved</text>
+</g>
+
+<!-- notification badge -->
+<g>
+<circle cx="420" cy="90" r="26" fill="#FFFFFF" stroke="#C7D2FE" stroke-width="1.5"/>
+<path d="M410 84 h20 M410 90 h20 M410 96 h12" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round"/>
+<circle cx="438" cy="76" r="7" fill="#EF4444"/>
+<text x="438" y="80" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="700" fill="#FFFFFF" text-anchor="middle">!</text>
+</g>
+</svg>

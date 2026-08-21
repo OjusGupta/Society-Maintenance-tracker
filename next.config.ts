@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+    ],
+  },
+  // Required for bcryptjs in Edge runtime (if needed)
+  serverExternalPackages: ["bcryptjs"],
 };
 
 export default nextConfig;

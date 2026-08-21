@@ -1,0 +1,130 @@
+// This is your Prisma schema file.
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(RESIDENT)
+  flatNumber   String?  @map("flat_number")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  complaints       Complaint[]              @relation("ResidentComplaints")
+  statusChanges    ComplaintStatusHistory[] @relation("ChangedByUser")
+  notices          Notice[]                 @relation("PostedByUser")
+  emailLogs        EmailLog[]
+
+  @@map("users")
+}
+
+enum Role {
+  RESIDENT
+  ADMIN
+}
+
+// ─── Complaint ────────────────────────────────────────────────────────────────
+model Complaint {
+  id            String          @id @default(cuid())
+  residentId    String          @map("resident_id")
+  category      Category
+  description   String
+  photoUrl      String?         @map("photo_url")
+  priority      Priority        @default(LOW)
+  currentStatus Status          @default(OPEN) @map("current_status")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  resolvedAt    DateTime?       @map("resolved_at")
+
+  resident      User                     @relation("ResidentComplaints", fields: [residentId], references: [id])
+  statusHistory ComplaintStatusHistory[]
+
+  @@map("complaints")
+}
+
+enum Category {
+  PLUMBING
+  ELECTRICAL
+  CLEANING
+  SECURITY
+  LIFT
+  PARKING
+  INTERNET
+  OTHER
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Status {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+// ─── ComplaintStatusHistory ───────────────────────────────────────────────────
+// Append-only audit log of every status transition.
+model ComplaintStatusHistory {
+  id          String    @id @default(cuid())
+  complaintId String    @map("complaint_id")
+  status      Status
+  note        String?
+  changedById String    @map("changed_by")
+  timestamp   DateTime  @default(now())
+
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  changedBy   User      @relation("ChangedByUser", fields: [changedById], references: [id])
+
+  @@map("complaint_status_history")
+}
+
+// ─── Notice ───────────────────────────────────────────────────────────────────
+model Notice {
+  id          String   @id @default(cuid())
+  title       String
+  body        String
+  isImportant Boolean  @default(false) @map("is_important")
+  postedById  String   @map("posted_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  postedBy    User     @relation("PostedByUser", fields: [postedById], references: [id])
+
+  @@map("notices")
+}
+
+// ─── EmailLog (optional audit) ────────────────────────────────────────────────
+model EmailLog {
+  id        String      @id @default(cuid())
+  userId    String?     @map("user_id")
+  recipient String
+  type      EmailType
+  status    EmailStatus @default(SENT)
+  error     String?
+  sentAt    DateTime    @default(now()) @map("sent_at")
+
+  user      User?       @relation(fields: [userId], references: [id])
+
+  @@map("email_logs")
+}
+
+enum EmailType {
+  STATUS_CHANGE
+  IMPORTANT_NOTICE
+}
+
+enum EmailStatus {
+  SENT
+  FAILED
+}
