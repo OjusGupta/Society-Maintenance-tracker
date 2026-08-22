@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
@@ -28,6 +28,12 @@ export default function ComplaintDetailPage() {
   const router = useRouter();
   const [complaint, setComplaint] = useState<ComplaintDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const isDeletedRef = useRef(false);
+
+  // Determine back link early so it's available for all handlers
+  const isAdmin = user?.role === "ADMIN";
+  const backLink = isAdmin ? "/admin/complaints" : "/complaints";
 
   // Admin action state
   const [status, setStatus] = useState("");
@@ -39,17 +45,38 @@ export default function ComplaintDetailPage() {
     if (!isLoading && !user) router.push("/login");
   }, [user, isLoading, router]);
 
-  useEffect(() => {
-    if (!token || !id) return;
-    fetch(`/api/complaints/${id}`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
-      .then((data) => {
-        setComplaint(data);
-        setStatus(data.currentStatus);
-        setPriority(data.priority);
-        setLoading(false);
+  const fetchComplaint = useCallback(async () => {
+    if (!token || !id || isDeletedRef.current) return;
+    try {
+      const res = await fetch(`/api/complaints/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
+      if (!res.ok) {
+        setError("Complaint not found");
+        setLoading(false);
+        return;
+      }
+      const data = await res.json();
+      // Validate that we got a proper complaint object, not an error response
+      if (!data || data.error || !data.id) {
+        setError(data?.error || "Complaint not found");
+        setLoading(false);
+        return;
+      }
+      setComplaint(data);
+      setStatus(data.currentStatus);
+      setPriority(data.priority);
+      setError("");
+    } catch {
+      setError("Failed to load complaint");
+    } finally {
+      setLoading(false);
+    }
   }, [id, token]);
+
+  useEffect(() => {
+    fetchComplaint();
+  }, [fetchComplaint]);
 
   const handleUpdateStatus = async () => {
     if (status === complaint?.currentStatus && !note) return;
@@ -60,7 +87,11 @@ export default function ComplaintDetailPage() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ status, note }),
       });
-      window.location.reload();
+      // Re-fetch instead of full page reload for smoother UX
+      await fetchComplaint();
+      setNote("");
+    } catch {
+      alert("Failed to update status");
     } finally {
       setActionLoading(false);
     }
@@ -75,7 +106,10 @@ export default function ComplaintDetailPage() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ priority }),
       });
-      window.location.reload();
+      // Re-fetch instead of full page reload for smoother UX
+      await fetchComplaint();
+    } catch {
+      alert("Failed to update priority");
     } finally {
       setActionLoading(false);
     }
@@ -90,22 +124,41 @@ export default function ComplaintDetailPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        router.push(backLink);
+        // Mark as deleted to prevent any re-fetch or re-render issues
+        isDeletedRef.current = true;
+        setComplaint(null);
+        // Use replace so the user can't navigate back to a deleted complaint
+        router.replace(backLink);
       } else {
         alert("Failed to delete complaint");
       }
-    } catch (err) {
+    } catch {
       alert("Failed to delete complaint");
     } finally {
-      setActionLoading(false);
+      if (!isDeletedRef.current) {
+        setActionLoading(false);
+      }
     }
   };
 
+  if (isDeletedRef.current) return <div className="spinner" />;
   if (isLoading || loading) return <div className="spinner" />;
-  if (!complaint) return <div className="container page-wrapper">Complaint not found</div>;
-
-  const isAdmin = user?.role === "ADMIN";
-  const backLink = isAdmin ? "/admin/complaints" : "/complaints";
+  if (error || !complaint) {
+    return (
+      <div className="container page-wrapper">
+        <Link href={backLink} className="btn btn-ghost mb-md" style={{ paddingLeft: 0 }}>
+          ← Back to Complaints
+        </Link>
+        <div className="empty-state">
+          <h3>{error || "Complaint not found"}</h3>
+          <p>This complaint may have been deleted or you don&apos;t have permission to view it.</p>
+          <Link href={backLink} className="btn btn-primary mt-xl">
+            Go to Complaints
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container page-wrapper">
@@ -121,7 +174,7 @@ export default function ComplaintDetailPage() {
           <p className="page-subtitle">ID: {complaint.id}</p>
         </div>
         <button className="btn btn-danger" onClick={handleDelete} disabled={actionLoading} style={{ marginTop: "1rem" }}>
-          Delete Request
+          {actionLoading ? "Deleting..." : "Delete Request"}
         </button>
       </div>
 
@@ -157,7 +210,7 @@ export default function ComplaintDetailPage() {
           <div className="card">
             <h3 className="card-title mb-lg">Status Timeline</h3>
             <div className="timeline">
-              {complaint.statusHistory.map((h, i) => (
+              {complaint.statusHistory.map((h) => (
                 <div key={h.id} className="timeline-item">
                   <div className="timeline-line" />
                   <div className={`timeline-dot timeline-dot-${h.status.toLowerCase().replace("_", "")}`}>
