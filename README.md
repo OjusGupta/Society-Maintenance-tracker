@@ -90,15 +90,16 @@ users
 └── created_at
 
 complaints
-├── id             (PK, CUID)
-├── resident_id    (FK → users.id)
-├── category       # PLUMBING | ELECTRICAL | CLEANING | SECURITY | LIFT | PARKING | INTERNET | OTHER
+├── id                (PK, CUID)
+├── resident_id       (FK → users.id)
+├── category          # PLUMBING | ELECTRICAL | CLEANING | SECURITY | LIFT | PARKING | INTERNET | OTHER
 ├── description
-├── photo_url      (nullable — Cloudinary URL)
-├── priority       # LOW | MEDIUM | HIGH
-├── current_status # OPEN | IN_PROGRESS | RESOLVED
+├── photo_url         (nullable — Cloudinary URL)
+├── priority          # LOW | MEDIUM | HIGH
+├── current_status    # OPEN | IN_PROGRESS | RESOLVED
+├── is_flagged_overdue  # Admin manual overdue flag (default: false)
 ├── created_at
-└── resolved_at    (nullable)
+└── resolved_at       (nullable)
 
 complaint_status_history  (append-only)
 ├── id             (PK, CUID)
@@ -142,8 +143,10 @@ email_logs
 | POST | `/api/complaints` | Resident | Create complaint (category, description, optional photoBase64) |
 | GET | `/api/complaints` | Resident / Admin | Resident: own complaints. Admin: all, filterable by `?status=&category=&date=` |
 | GET | `/api/complaints/:id` | Resident / Admin | Complaint detail + full status history |
+| DELETE | `/api/complaints/:id` | Owner / Admin | Delete a complaint and its status history |
 | PATCH | `/api/complaints/:id/status` | Admin | Update status → history row + optional note + email |
 | PATCH | `/api/complaints/:id/priority` | Admin | Set priority |
+| PATCH | `/api/complaints/:id/overdue` | Admin | Manually flag/unflag a complaint as overdue |
 
 ### Notices
 | Method | Route | Access | Description |
@@ -184,9 +187,10 @@ Hosted URL: *(fill in after deploy)*
     /auth/register     POST — register resident
     /auth/login        POST — login
     /complaints        GET (list) / POST (create)
-    /complaints/[id]   GET (detail + history)
+    /complaints/[id]   GET (detail + history) / DELETE
     /complaints/[id]/status    PATCH — admin status update
     /complaints/[id]/priority  PATCH — admin priority update
+    /complaints/[id]/overdue   PATCH — admin overdue flag
     /notices           GET / POST
     /dashboard         GET — admin stats
   /complaints          Resident: my complaints list
@@ -225,5 +229,4 @@ Hosted URL: *(fill in after deploy)*
 
 ## 9. Further Documentation
 
-- See `design.md` for the system design write-up (complaint history model, overdue detection, photo handling, notification flow)
-- See `plan.md` for the build plan and phase checklist
+- See `SYSTEM_DESIGN_AND_ORIGINALITY.md` for the system design write-up (complaint history model, overdue detection, photo handling, and notification flow)

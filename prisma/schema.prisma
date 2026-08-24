@@ -35,15 +35,16 @@ enum Role {
 
 // ─── Complaint ────────────────────────────────────────────────────────────────
 model Complaint {
-  id            String          @id @default(cuid())
-  residentId    String          @map("resident_id")
-  category      Category
-  description   String
-  photoUrl      String?         @map("photo_url")
-  priority      Priority        @default(LOW)
-  currentStatus Status          @default(OPEN) @map("current_status")
-  createdAt     DateTime        @default(now()) @map("created_at")
-  resolvedAt    DateTime?       @map("resolved_at")
+  id               String          @id @default(cuid())
+  residentId       String          @map("resident_id")
+  category         Category
+  description      String
+  photoUrl         String?         @map("photo_url")
+  priority         Priority        @default(LOW)
+  currentStatus    Status          @default(OPEN) @map("current_status")
+  isFlaggedOverdue Boolean         @default(false) @map("is_flagged_overdue")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  resolvedAt       DateTime?       @map("resolved_at")
 
   resident      User                     @relation("ResidentComplaints", fields: [residentId], references: [id])
   statusHistory ComplaintStatusHistory[]

@@ -33,7 +33,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const thresholdDays = parseInt(process.env.OVERDUE_THRESHOLD_DAYS ?? "7", 10);
   const overdueDate = new Date(Date.now() - thresholdDays * 86400000);
-  const isOverdue = complaint.currentStatus !== "RESOLVED" && complaint.createdAt < overdueDate;
+  const isOverdue = complaint.isFlaggedOverdue || (complaint.currentStatus !== "RESOLVED" && complaint.createdAt < overdueDate);
 
   return NextResponse.json({ ...complaint, isOverdue });
 }
