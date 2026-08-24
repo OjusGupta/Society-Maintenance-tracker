@@ -13,6 +13,7 @@ type ComplaintDetail = {
   photoUrl?: string;
   createdAt: string;
   isOverdue: boolean;
+  isFlaggedOverdue: boolean;
   statusHistory: Array<{
     id: string;
     status: string;
@@ -110,6 +111,23 @@ export default function ComplaintDetailPage() {
       await fetchComplaint();
     } catch {
       alert("Failed to update priority");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleToggleOverdue = async () => {
+    if (!complaint) return;
+    setActionLoading(true);
+    try {
+      await fetch(`/api/complaints/${id}/overdue`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ isFlaggedOverdue: !complaint.isFlaggedOverdue }),
+      });
+      await fetchComplaint();
+    } catch {
+      alert("Failed to update overdue flag");
     } finally {
       setActionLoading(false);
     }
@@ -284,6 +302,24 @@ export default function ComplaintDetailPage() {
                 Save Priority
               </button>
             </div>
+
+            {complaint.currentStatus !== "RESOLVED" && (
+              <div className="card">
+                <h3 className="card-title mb-md">Overdue Flag</h3>
+                <p className="text-sm text-muted mb-md">
+                  {complaint.isFlaggedOverdue
+                    ? "This complaint has been manually flagged as overdue."
+                    : "Flag this complaint as overdue to surface it at the top of the list."}
+                </p>
+                <button
+                  className={`btn w-full ${complaint.isFlaggedOverdue ? "btn-secondary" : "btn-danger"}`}
+                  onClick={handleToggleOverdue}
+                  disabled={actionLoading}
+                >
+                  {complaint.isFlaggedOverdue ? "Remove Overdue Flag" : "Flag as Overdue"}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

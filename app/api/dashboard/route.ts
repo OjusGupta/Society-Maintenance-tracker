@@ -16,11 +16,14 @@ export async function GET(req: NextRequest) {
     prisma.complaint.groupBy({ by: ["currentStatus"], _count: true }),
     // Count by category
     prisma.complaint.groupBy({ by: ["category"], _count: true }),
-    // Overdue: open/in-progress and older than threshold
+    // Overdue: auto-detected (open/in-progress and older than threshold) OR manually flagged
     prisma.complaint.count({
       where: {
         currentStatus: { not: "RESOLVED" },
-        createdAt: { lt: overdueDate },
+        OR: [
+          { createdAt: { lt: overdueDate } },
+          { isFlaggedOverdue: true },
+        ],
       },
     }),
     // Total complaints

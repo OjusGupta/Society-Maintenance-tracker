@@ -36,8 +36,21 @@ export async function GET(req: NextRequest) {
   if (statusFilter) where.currentStatus = statusFilter;
   if (categoryFilter) where.category = categoryFilter;
   if (dateFilter) {
-    const d = new Date(dateFilter);
-    where.createdAt = { gte: d, lt: new Date(d.getTime() + 86400000) };
+    const now = new Date();
+    let dateFrom: Date;
+    if (dateFilter === "TODAY") {
+      dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    } else if (dateFilter === "WEEK") {
+      dateFrom = new Date(now.getTime() - 7 * 86400000);
+    } else if (dateFilter === "MONTH") {
+      dateFrom = new Date(now.getTime() - 30 * 86400000);
+    } else {
+      // Fallback: treat as ISO date string for direct date queries
+      dateFrom = new Date(dateFilter);
+    }
+    if (!isNaN(dateFrom.getTime())) {
+      where.createdAt = { gte: dateFrom };
+    }
   }
 
   const complaints = await prisma.complaint.findMany({
@@ -49,10 +62,10 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "desc" },
   });
 
-  // Annotate each complaint with computed is_overdue
+  // Annotate each complaint with computed is_overdue (auto-detected OR manually flagged)
   const result = complaints.map((c) => ({
     ...c,
-    isOverdue: c.currentStatus !== "RESOLVED" && c.createdAt < overdueDate,
+    isOverdue: c.isFlaggedOverdue || (c.currentStatus !== "RESOLVED" && c.createdAt < overdueDate),
   }));
 
   // Admin: sort overdue complaints to top
